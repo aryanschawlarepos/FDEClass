@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saya Workload Assistant</title>
+<style>
+  :root{
+    --bg:#f3f8f8; --card:#fff; --ink:#14212b; --muted:#5b6b75; --line:#e1eaec;
+    --teal:#1f8a7a; --teal-d:#166b5f; --teal-l:#e3f3f0; --amber:#c98a00; --amber-l:#fff4d6; --red:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:12px;padding:14px 22px;background:var(--card);border-bottom:1px solid var(--line)}
+  .logo{width:36px;height:36px;border-radius:10px;background:var(--teal);display:grid;place-items:center;color:#fff;font-weight:700}
+  header h1{font-size:17px;margin:0}
+  header p{margin:0;font-size:12px;color:var(--muted)}
+  .badge{margin-left:auto;font-size:12px;color:var(--teal-d);background:var(--teal-l);padding:4px 10px;border-radius:99px;white-space:nowrap}
+  main{flex:1;min-height:0;display:grid;grid-template-columns:300px 1fr}
+  aside{border-right:1px solid var(--line);background:var(--card);padding:16px;overflow:auto}
+  aside h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+  .kpi b{display:block;font-size:19px}
+  .kpi span{font-size:11px;color:var(--muted)}
+  .kpi.warn b{color:var(--amber)}
+  .person{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .person small{color:var(--muted)}
+  .tag{font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--teal-l);color:var(--teal-d);height:fit-content}
+  .tag.m{background:var(--amber-l);color:var(--amber)}
+  .note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.45}
+  section.chat{display:flex;flex-direction:column;min-height:0}
+  #log{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:760px;padding:11px 15px;border-radius:14px;line-height:1.55;font-size:14.5px;white-space:normal;word-wrap:break-word}
+  .msg.bot{background:var(--card);border:1px solid var(--line);align-self:flex-start}
+  .msg.user{background:var(--teal);color:#fff;align-self:flex-end}
+  .msg ul{margin:6px 0 6px 18px;padding:0}
+  .msg p{margin:0 0 8px}.msg p:last-child{margin:0}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 22px 10px}
+  .chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--teal-d);padding:7px 12px;border-radius:99px;cursor:pointer}
+  .chip:hover{background:var(--teal-l)}
+  form{display:flex;gap:10px;padding:12px 22px 18px;border-top:1px solid var(--line);background:var(--card)}
+  input{flex:1;font:inherit;font-size:14.5px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;outline:none}
+  input:focus{border-color:var(--teal)}
+  button.send{font:inherit;font-weight:600;background:var(--teal);color:#fff;border:0;border-radius:10px;padding:0 20px;cursor:pointer}
+  button.send:disabled{opacity:.5;cursor:default}
+  .dots span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+  .dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  @media(max-width:800px){main{grid-template-columns:1fr}aside{display:none}header .badge{display:none}}
+</style>
+<script type="text/javascript" nonce="eea794deaa7a42a68106b900fab" src="//local.adguard.org?ts=1794952495758&amp;type=content-script&amp;dmn=5c8ca78e-1676-49bc-a0b1-a746c4163833.frame.claudeusercontent.com&amp;url=https%3A%2F%2F5c8ca78e-1676-49bc-a0b1-a746c4163833.frame.claudeusercontent.com%2F_f%2F1794954444-0486%2F_src%2Findex.html%3F__frame_t%3D1YGO03Vjv03sWtJc9o7esE0-.bdbdffca-b18a-45b7-8367-a55f52e1e2b6.8eeb9ec9-ea08-4bd1-9b1f-3da0a6420c64.1794958066&amp;app=brave.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0&amp;stealth=1&amp;st-dnt"></script><script type="text/javascript" nonce="eea794deaa7a42a68106b900fab" src="//local.adguard.org?ts=1794952495758&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script></head>
+<body>
+<header>
+  <div class="logo">S</div>
+  <div><h1>Saya Workload Assistant</h1><p>Ask about team workload, meetings, focus time and AI-tool use</p></div>
+  <div class="badge" id="mode">Saya snapshot · week of Nov 9, 2026</div>
+</header>
+<main>
+  <aside>
+    <h2>Saya snapshot</h2>
+    <div class="kpis">
+      <div class="kpi"><b>20</b><span>employees</span></div>
+      <div class="kpi"><b>2.0h</b><span>avg meetings / person</span></div>
+      <div class="kpi"><b>133</b><span>focus blocks</span></div>
+      <div class="kpi warn"><b>0 / 5</b><span>high / medium risk</span></div>
+      <div class="kpi"><b>8 / 20</b><span>seen on AI tools</span></div>
+      <div class="kpi"><b>18.7%</b><span>AI browser exposure</span></div>
+    </div>
+    <h2>People (partial list)</h2>
+    <div id="people"></div>
+    <p class="note">Directional signals only: 1 working day of the week had happened, and browser data covers 8 of 20 people. Saya's own guidance: use these as prompts for a conversation, not conclusions.</p>
+  </aside>
+  <section class="chat">
+    <div id="log"></div>
+    <div class="chips" id="chips"></div>
+    <form id="f"><input id="q" placeholder="Ask e.g. “Who is at risk of becoming a bottleneck?”" autocomplete="off"><button class="send" id="go">Send</button></form>
+  </section>
+</main>
+
+<script>
+/* ---------- Saya data (transcribed from the dashboard screenshots) ---------- */
+const SAYA = {
+  org:"Catenate", week:"2026-11-09", employees:20, snapshotNote:"Only 1 working day of the week had happened at capture time, so treat as early signals.",
+  overview:{avgMeetingHoursPerPerson:2.0, totalFocusBlocks:133, highRisk:0, mediumRisk:5},
+  aiEfficiency:{peopleObservedOnAI:"8 of 20", aiExposurePct:18.7, aiHours:4.9, observedBrowserHours:26.2, driveEdits:0,
+    calendarFreeHours:873.3, hoursInMeetings:47.9, browserCoverage:"8 of 20 people, 81 person-days (2026-10-16 to 2026-11-12)",
+    caveat:"Exposure may include research or browsing; Drive edits don't prove completed work; calendar gaps are not verified free time."},
+  trends:{recordedWeeks:8, meetingLoadHoursPerPerson:2.4, vsNov2:"+0.4h", workloadPressurePeople:0,
+    meetingLoadHistoryApprox:[2.4,2.9,2.8,2.5,2.2,2.45,1.95,2.4]},
+  bottlenecks:[
+    {name:"Sameer Ranjan", teams:"Leadership, Marketing", crossTeamSpan:2, collaborators:36, score:45},
+    {name:"Poorwa Kunwar", teams:"Tech Team", crossTeamSpan:1, collaborators:15, score:14}],
+  bottleneckAdvice:"Redistribute cross-team commitments where possible and name a backup point of contact for each.",
+  commsThemes:{needsContext:{meetings:77, emails:45}, note:"Categories only appear when shared by 4+ people, so most meetings are uncategorised."},
+  ageGroups:{under30:{people:5, avgOverwhelm:6.4, avgDisengagement:0, avgOffCourse:20}, "30-39":{people:3,note:"too few to report"}, "40-49":{people:1,note:"too few to report"}, "50+":{people:3,note:"too few to report"}},
+  people:[
+    {name:"Brian Kroll", team:"Unassigned", meetingHrs:0, focusBlocks:5, flags:["Low","Low"]},
+    {name:"Catenate marketing", team:"Unassigned", meetingHrs:0, focusBlocks:5, flags:["Low","Low"]},
+    {name:"Dhruv Karthik", team:"Marketing", meetingHrs:0, focusBlocks:5, flags:["Low","Low"]},
+    {name:"Hemanth Rapeti", team:"Tech Team", meetingHrs:3.5, focusBlocks:5, flags:["Medium","Medium"]},
+    {name:"Janya NB", team:"Tech Team", meetingHrs:3.8, focusBlocks:11, flags:["Low","Low"]},
+    {name:"Karan Singh", team:"Marketing", meetingHrs:0, focusBlocks:5, flags:["Low","Low"]},
+    {name:"Nandini Subbaraya", team:"Tech Team", meetingHrs:3.5, focusBlocks:10, flags:["Low","Low"]},
+    {name:"Poorwa Kunwar", team:"Tech Team", meetingHrs:6.8, focusBlocks:12, flags:["Low","Low"]},
+    {name:"Prasad Thottekatil", team:"Unassigned", meetingHrs:0, focusBlocks:5, flags:["Low","Low"]},
+    {name:"Raviteja Karri", team:"Tech Team", meetingHrs:4.5, focusBlocks:5, flags:["Medium","Medium"]}],
+  peopleListNote:"Only 10 of the 20 employees were visible; the two flag columns were unlabelled in the screenshot.",
+  sampleProfile:{note:"One employee's Work Twin view (name not visible)", meetingHours:7.5, recurringMeetings:6, focusBlocks:10, avgFocusBlockMin:237,
+    afterHoursMeetings:4, lateEmails:6, driveEdits:0, emailsSent:6,
+    ratings:{meetingLoad:"Low", focusHealth:"Low", afterHoursPressure:"Medium", collaborationLoad:"High"}}
+};
+
+const SYSTEM = `You are the Saya Workload Assistant, a concise AI coach for a manager at ${SAYA.org}. Use ONLY the Saya data below to help optimise employee workload and efficiency.
+Rules:
+- Ground every claim in the numbers; quote them. If the data can't answer, say so and say what Saya data would help.
+- Give practical, specific actions (who/what/when), ranked by impact. Keep answers short: 3-6 bullets or a brief paragraph.
+- Treat signals as conversation starters, not verdicts on individuals. Never diagnose burnout or judge performance; suggest a check-in instead.
+- Flag data limits when relevant: one working day captured, browser coverage 8/20, Drive edits and calendar gaps are proxies, many people have 0 meeting hours, only part of the people list was visible.
+- Plain text with simple "- " bullets and **bold**. No tables or headers.
+
+SAYA DATA (JSON):
+${JSON.stringify(SAYA)}`;
+
+/* ---------- UI helpers ---------- */
+const log = document.getElementById('log'), form = document.getElementById('f'), q = document.getElementById('q'), go = document.getElementById('go');
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function md(t){
+  const lines = esc(t).split('\n'); let out='', inList=false;
+  for (const l of lines){
+    const m = l.match(/^\s*[-*•]\s+(.*)/);
+    if (m){ if(!inList){out+='<ul>';inList=true} out+='<li>'+m[1]+'</li>'; }
+    else { if(inList){out+='</ul>';inList=false} if(l.trim()) out+='<p>'+l+'</p>'; }
+  }
+  if(inList) out+='</ul>';
+  return out.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+}
+function add(role, text){ const d=document.createElement('div'); d.className='msg '+role; d.innerHTML = role==='user'?esc(text):md(text); log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+
+document.getElementById('people').innerHTML = SAYA.people.map(p =>
+  `<div class="person"><div>${p.name}<br><small>${p.team} · ${p.meetingHrs}h mtg · ${p.focusBlocks} blocks</small></div><span class="tag ${p.flags[0]==='Medium'?'m':''}">${p.flags[0]}</span></div>`).join('');
+
+const PROMPTS = ["Give me a weekly workload summary","Who is at risk of becoming a bottleneck?","How can we cut meeting load?","How do we protect focus time?","How are we using AI tools?","What should I do this week?"];
+document.getElementById('chips').innerHTML = PROMPTS.map(p=>`<button class="chip" type="button">${p}</button>`).join('');
+document.getElementById('chips').addEventListener('click', e => { if(e.target.classList.contains('chip')) ask(e.target.textContent); });
+
+/* ---------- Fallback answers (used if live Claude isn't available) ---------- */
+function rules(text){
+  const t = text.toLowerCase();
+  if (/bottleneck|single point|backup|collab/.test(t)) return `- **Sameer Ranjan** spans Leadership and Marketing with 36 collaborators (bottleneck score 45), the clearest single point of failure.\n- **Poorwa Kunwar** has 15 collaborators (score 14) and 6.8 meeting hours, the highest in the visible list.\n- Action: name a backup contact for each and move recurring cross-team decisions to a shared doc or channel.\n- Check in with both before changing anything; these are signals, not verdicts.`;
+  if (/meeting/.test(t)) return `- Org average is **2.4h/person** (+0.4h vs Nov 2), but it's uneven: Poorwa Kunwar 6.8h, Raviteja Karri 4.5h, Janya NB 3.8h, while many people show 0h.\n- **77 meetings** are tagged "needs context", so add agendas/titles to make them categorisable.\n- Action: audit the 6 recurring meetings on the busiest Tech Team calendars and shorten or make them async.`;
+  if (/focus|deep work/.test(t)) return `- The org has **133 focus blocks**; Poorwa Kunwar (12), Janya NB (11) and Nandini Subbaraya (10) lead, Hemanth Rapeti and Raviteja Karri have 5 with Medium flags.\n- Action: set no-meeting windows for the Tech Team and keep meetings off the longest blocks (one profile averages 237 min).`;
+  if (/\bai\b|tool|automation|efficien/.test(t)) return `- Only **8 of 20** people were seen on AI tools; AI exposure is **18.7%** (4.9 of 26.2 browser hours).\n- Drive edits are 0 and calendar gaps total 873.3h versus 47.9h in meetings, so there is room to pilot AI on repeated tasks (meeting notes, status updates).\n- Caveat: browser coverage is 8/20 people, so this is directional.`;
+  if (/risk|burnout|overload|overwhelm/.test(t)) return `- **0 high-risk** and **5 medium-risk** employees. Hemanth Rapeti and Raviteja Karri show Medium flags.\n- Under-30s (5 people) average overwhelm **6.4**; other age groups are too small to report.\n- Action: short check-ins with the medium-risk group and watch after-hours meetings and late emails.`;
+  if (/week|do this|priorit|summary|overview|next/.test(t)) return `- **Overview:** 20 people, 2.4h avg meetings, 133 focus blocks, no high risk, 5 medium.\n- **1.** Assign backups for Sameer Ranjan and Poorwa Kunwar.\n- **2.** Check in with the 5 medium-risk people.\n- **3.** Add agendas to the 77 uncategorised meetings.\n- **4.** Pilot AI tools with the 12 people not yet observed using them.\n- Data caveat: one working day captured so far.`;
+  return `I can help with workload summaries, bottlenecks, meeting load, focus time, risk, and AI-tool use. Try one of the suggested questions.`;
+}
+
+/* ---------- Chat ---------- */
+let sample = null, history = [];
+(async()=>{ try{ sample = await window.claude.use('sample'); }catch(e){ sample=null } if(!sample) document.getElementById('mode').textContent='Offline mode · rule-based answers'; else document.getElementById('mode').textContent='Live AI · Saya snapshot Nov 9, 2026'; })();
+
+async function ask(text){
+  text = text.trim(); if(!text) return;
+  q.value=''; go.disabled=true; add('user', text);
+  const bot = add('bot','<span class="dots"><span></span><span></span><span></span></span>'); bot.innerHTML='<span class="dots"><span></span><span></span><span></span></span>';
+  history.push({role:'user',content:text});
+  let answer;
+  if (sample){
+    try{
+      const msgs = [{role:'user',content:SYSTEM+'\n\nConversation starts now.'},{role:'assistant',content:'Understood. Ready to help with Saya workload data.'}, ...history.slice(-10)];
+      const r = await sample(msgs,{cache:false, modelTier:'quick', onText:({text:t})=>{ bot.innerHTML=md(t); log.scrollTop=log.scrollHeight; }});
+      answer = r.text;
+    }catch(e){ answer = rules(text) + (e && e.code==='rate_limited' ? '\n\n(Live AI is rate-limited; showing a built-in answer.)' : ''); }
+  } else { await new Promise(r=>setTimeout(r,350)); answer = rules(text); }
+  bot.innerHTML = md(answer); history.push({role:'assistant',content:answer});
+  go.disabled=false; q.focus(); log.scrollTop=log.scrollHeight;
+}
+form.addEventListener('submit', e=>{ e.preventDefault(); ask(q.value); });
+add('bot', "Hi! I'm your workload assistant, powered by the Saya snapshot for **Catenate** (week of Nov 9).\n\nAt a glance: 20 people, 2.4h average meetings, 133 focus blocks, no high-risk employees and 5 medium. Two people (Sameer Ranjan, Poorwa Kunwar) look like cross-team bottlenecks.\n\nPick a question below or ask your own.");
+</script>
+</body>
+</html>
